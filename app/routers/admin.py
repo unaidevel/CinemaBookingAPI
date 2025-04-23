@@ -1,0 +1,15 @@
+from fastapi import APIRouter, Depends
+from typing import Annotated
+from app.auths.dependency import admin_only
+from app.models import UserInDb
+
+router = APIRouter()
+
+
+
+
+@router.post('/admin-only/')
+async def admin_only_endpoint(
+    current_user: Annotated[UserInDb, Depends(admin_only)]
+):
+    return {"message": "You have admin access"}
