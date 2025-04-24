@@ -1,4 +1,4 @@
-from models import UserInDb
+from app.models.models.user import UserInDb
 from database import SessionDep
 from uuid import uuid4
 from datetime import date

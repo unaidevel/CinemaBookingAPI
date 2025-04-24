@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 from app.database import engine
-from app.routes import routes
+from app.routers import routes
 
 app = FastAPI()
 

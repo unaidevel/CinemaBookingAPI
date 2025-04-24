@@ -2,23 +2,15 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-import sys
-import os
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from alembic import context
+
+
 from dotenv import load_dotenv
+from pathlib import Path
+import os
 
-load_dotenv("/home/unai/Desktop/Portfolio/portfolio_project/backend/CourtBookingAPI/app/.env")
-
-from app.config import get_settings
-
-settings = get_settings()
-
-
-
+load_dotenv()
 
 
 # this is the Alembic Config object, which provides
@@ -34,17 +26,19 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from sqlmodel import SQLModel
 
+from sqlmodel import SQLModel
 target_metadata = SQLModel.metadata
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

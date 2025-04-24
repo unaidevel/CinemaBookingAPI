@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
 
-    model_config = SettingsConfigDict(env_file="/home/unai/Desktop/Portfolio/portfolio_project/backend/CourtBookingAPI/app/.env")
+    model_config = SettingsConfigDict(env_file="/home/unai/Desktop/Portfolio/portfolio_project/backend/CourtBookingAPI/.env")
 
 
 @lru_cache
