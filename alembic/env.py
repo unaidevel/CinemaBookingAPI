@@ -12,10 +12,10 @@ import os
 
 load_dotenv()
 
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -27,8 +27,19 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
+# def get_metadata():
+#     # from app.models.booking import Booking
+#     # from app.models.user import UserInDb, UserPublic, UserPassword
+#     # from app.models.movie import Movie
+#     # from app.models.session import Session
+#     from app.models import Session, Movie, UserInDb, UserPublic, UserPassword, Booking
+#     return SQLModel.metadata
+
+# target_metadata = get_metadata()
+from app.models import Session, Movie, UserInDb, UserPublic, UserPassword, Booking
 from sqlmodel import SQLModel
 target_metadata = SQLModel.metadata
+
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 

@@ -2,10 +2,11 @@ from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr
 from datetime import date
 import uuid
-from app.models.booking import Booking  
-from typing import List
 
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from .booking import Booking
 
 
 
