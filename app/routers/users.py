@@ -12,11 +12,11 @@ from fastapi.exceptions import HTTPException
 
 
 
-router = APIRouter()
+user_router = APIRouter()
 
 
 
-@router.post('/token')
+@user_router.post('/token')
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     user = authenticate_user(SessionDep, form_data.username, form_data.password)
     if not user:
@@ -32,7 +32,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
 
 
-@router.post('/user/', response_model=UserPublic)
+@user_router.post('/user/', response_model=UserPublic)
 async def create_user(user: UserPassword, session: SessionDep):
     hashed_password = get_password_hashed(user.password)
     user_in_db = UserInDb(
@@ -47,7 +47,7 @@ async def create_user(user: UserPassword, session: SessionDep):
     return user_in_db
 
 
-@router.post('/logout/')
+@user_router.post('/logout/')
 async def logout(
     token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep
 ):
@@ -60,7 +60,7 @@ async def logout(
 
 
 
-@router.post('/user/me/', response_model=UserPublic)
+@user_router.post('/user/me/', response_model=UserPublic)
 async def read_user_me(
     current_user: Annotated[UserInDb, Depends(get_current_user)]
 ):

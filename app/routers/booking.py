@@ -3,10 +3,10 @@ from app.models import Booking, UserInDb
 from typing import Annotated
 from app.auths.auth import SessionDep, get_current_user
 
-router = APIRouter()
+booking_router = APIRouter()
 
 
-@router.post('/booking/', response_model=Booking)
+@booking_router.post('/booking', response_model=Booking)
 async def create_reserve(
     booking: Booking,
     session: SessionDep,

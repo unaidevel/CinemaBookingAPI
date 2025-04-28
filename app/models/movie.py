@@ -35,7 +35,7 @@ class Movie(SQLModel, table=True):
     sessions: list["Session"] = Relationship(back_populates='movie')
 
 
-class MovieUpdate(Movie):
+class MovieUpdate(SQLModel):
 
     title: str | None = None
     description: str | None = None

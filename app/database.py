@@ -4,12 +4,17 @@ from fastapi import Depends
 from sqlmodel import Session
 from typing import Annotated
 from app.config import get_settings
+from dotenv import load_dotenv
 
-settings = get_settings()
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# settings = get_settings()
 
 
 
-engine = create_engine(settings.DATABASE_URL)
+# engine = create_engine(settings.DATABASE_URL)
+engine = create_engine(DATABASE_URL)
 
 
 def get_session():

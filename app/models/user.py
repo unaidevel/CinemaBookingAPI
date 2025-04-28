@@ -33,3 +33,9 @@ class UserInDb(UserBase, table=True):
 
 class UserPublic(UserBase):
     pass
+
+
+class UserUpdate(SQLModel):
+    full_name: str | None = None
+    birth_date: date | None = None
+    email: EmailStr | None = None

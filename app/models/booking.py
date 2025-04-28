@@ -18,4 +18,9 @@ class Booking(SQLModel, table=True):
     
     sessions: 'Session' = Relationship(back_populates='booking')
     user: 'UserInDb' = Relationship(back_populates='booking')
-    movie: 'Movie' = Relationship(back_populates='booking')
+    movie: list['Movie'] = Relationship(back_populates='booking')
+
+
+class BookingUpdate(SQLModel):
+    booking_date: date | None = None
+    

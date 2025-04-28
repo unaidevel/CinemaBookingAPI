@@ -2,7 +2,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from app.database import SessionDep
-from portfolio_project.backend.CinemaBookingAPI.app.models.models import UserBase, UserPublic, UserPassword, UserInDb, TokenRefresh
+from app.models import UserPublic, UserPassword, UserInDb, TokenRefresh
 from fastapi.exceptions import HTTPException
 from fastapi import status, Depends
 from datetime import timedelta, datetime, timezone
