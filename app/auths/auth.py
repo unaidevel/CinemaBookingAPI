@@ -2,11 +2,12 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from app.database import SessionDep
-from app.models import UserPublic, UserPassword, UserInDb, TokenRefresh
+from app.models import UserPublic, UserPassword, UserInDb
+from app.auths.utils import TokenRefresh, Token, TokenData
 from fastapi.exceptions import HTTPException
 from fastapi import status, Depends
 from datetime import timedelta, datetime, timezone
-import jwt
+import jwt 
 from typing import Annotated
 from jwt.exceptions import InvalidTokenError
 from app.config import get_settings
@@ -19,12 +20,6 @@ SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: str | None = None
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')

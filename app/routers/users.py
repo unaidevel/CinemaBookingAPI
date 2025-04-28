@@ -5,7 +5,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.database import SessionDep
 from datetime import timedelta
 from app.auths.auth import create_access_token, authenticate_user, get_password_hashed, get_current_user
-from app.auths.auth import oauth2_scheme, TokenRefresh, Token
+from app.auths.auth import oauth2_scheme
+from app.auths.utils import TokenRefresh, Token
 from app.auths.auth import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.models import UserInDb, UserPassword, UserPublic
 from fastapi.exceptions import HTTPException
