@@ -20,6 +20,8 @@ class GenreEnum(str, Enum):
     COMEDY = "comedy"
     HORROR = "horror"
     WESTERN = "western"
+
+
 class Movie(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(max_length=100, unique=True, index=True)
@@ -31,3 +33,13 @@ class Movie(SQLModel, table=True):
 
 
     sessions: list["Session"] = Relationship(back_populates='movie')
+
+
+class MovieUpdate(Movie):
+
+    title: str | None = None
+    description: str | None = None
+    release_date: date | None = None
+    duration: int | None = None
+    genre: GenreEnum | None = None
+    showtime: date | None = None
