@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-
+from app.models import Session
 session_router = APIRouter()
 
 
-@session_router.get('/session')
-async def read_sessions():
-    return {"Its working!": "Hellooo"}
+@session_router.post('/sessions')
+async def create_session():
+    pass
