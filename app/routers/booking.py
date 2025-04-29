@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from app.models import Booking, UserInDb
 from typing import Annotated
-from app.auths.auth import SessionDep, get_current_user
+from app.auths.auth import SessionDep
+from app.auths.dependency import admin_only
 
 booking_router = APIRouter()
 
@@ -10,7 +11,7 @@ booking_router = APIRouter()
 async def create_reserve(
     booking: Booking,
     session: SessionDep,
-    current_user: Annotated[UserInDb, Depends(get_current_user)]
+    current_user: Annotated[UserInDb, Depends(admin_only)]
 ):
     booking.user_id = current_user.id
     session.add(booking)
