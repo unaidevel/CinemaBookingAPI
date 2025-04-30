@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, status
 from typing import Annotated
-from app.models import Session, SessionPublic
+from app.models import Session, SessionPublic, SessionUpdate
 from app.auths.auth import SessionDep
 from app.auths.dependency import admin_only
 from sqlmodel import select
@@ -36,9 +36,22 @@ async def read_session_by_id(session_id: str, session: SessionDep):
     return film
 
 @session_router.patch('/sessions/{session_id}', response_model=SessionPublic)
-async def update_session_by_id(session_id:str, session: SessionDep, current_user: Annotated[str, Depends(admin_only)]):
+async def update_session_by_id(session_id:str, session_update: SessionUpdate, session: SessionDep, current_user: Annotated[str, Depends(admin_only)]):
     specific_session = session.get(Session, session_id)
     if not specific_session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Session not found!')
     
-    
+    session_data = session_update.model_dump(exclude_unset=True)
+    specific_session.sqlmodel_update(session_data)
+    session.add(specific_session)
+    session.commit()
+    session.refresh(specific_session)
+    return specific_session
+
+
+@session_router.delete('/sessions/{session_id}')
+async def delete_session(session_id: str, session: SessionDep, current_user: Annotated[str, Depends(admin_only)]):
+    specific_session = session.get(Session, session_id)
+    session.delete(specific_session)
+    session.commit()
+    return {"message": "Session deleted succesfully!"}
