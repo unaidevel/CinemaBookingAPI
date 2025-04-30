@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class UserBase(SQLModel):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
     username: str = Field(max_length=15)
     full_name: str = Field(max_length=20)
     email: EmailStr = Field(unique=True)
@@ -27,6 +27,7 @@ class UserPassword(UserBase):
     password: str
 
 class UserInDb(UserBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
 
     bookings: list["Booking"] = Relationship(back_populates='user')
