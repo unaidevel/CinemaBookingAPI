@@ -5,7 +5,7 @@ from app.auths.auth import SessionDep
 from app.auths.dependency import admin_only
 from sqlmodel import select
 from fastapi.exceptions import HTTPException
-
+from uuid import UUID
 
 session_router = APIRouter()
 

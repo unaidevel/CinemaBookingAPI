@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from .movie import Movie
     from .booking import Booking
     from .user import UserInDb
-
+    from .seats import Seat
 
 
 class SessionBase(SQLModel):
@@ -38,6 +38,7 @@ class Session(SessionBase, table=True):
 
     movie: 'Movie' = Relationship(back_populates='sessions')
     bookings: list['Booking'] = Relationship(back_populates='session')
+    seats: list['Seat'] = Relationship(back_populates='session')
 
 
 # class Session(SQLModel, table=True):

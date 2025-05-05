@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from .user import UserInDb
     from .movie import Movie
     from .session import Session
+    from .seats import Seat
 
 # class Booking(SQLModel, table=True):
 #     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -45,7 +46,7 @@ class BookingPublic(BookingBase):
     id: uuid.UUID
     
 
-class Booking(BookingBase, table=True, ):
+class Booking(BookingBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     movie_id: uuid.UUID = Field(foreign_key='movie.id')
     session_id: uuid.UUID = Field(foreign_key='session.id')
@@ -56,6 +57,7 @@ class Booking(BookingBase, table=True, ):
     movie: 'Movie' = Relationship(back_populates='bookings')
     session: 'Session' = Relationship(back_populates='bookings')
     user: 'UserInDb' = Relationship(back_populates='bookings')
+    seats: list['Seat'] = Relationship(back_populates='booking')
 
     def cancel(self):   #Function to cancel a booking for booking_update endpoint for admins 
         self.is_canceled = True
