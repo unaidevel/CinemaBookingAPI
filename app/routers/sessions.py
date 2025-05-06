@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Query, status
+from typing import Dict, List
 from typing import Annotated
 from app.models import Session, SessionPublic, SessionUpdate, Seat
 from app.auths.auth import SessionDep, get_current_user
@@ -45,7 +46,7 @@ async def read_session_by_id(session_id: UUID, session: SessionDep):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found')
     return film
 
-@session_router.get('/session/{session_id}/seats', response_model=Seat)
+@session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[Dict[str, bool]]])
 async def read_seats_for_session(session_id: UUID, session: SessionDep, current_user:Annotated[str, Depends(get_current_user)]):
     seats = session.exec(select(Seat).where(Seat.session_id==session_id)).all()
     seats_per_row = defaultdict(list)
@@ -56,6 +57,9 @@ async def read_seats_for_session(session_id: UUID, session: SessionDep, current_
             "number": number,
             "reserved": seat.is_reserved
         })
+
+    for row in seats_per_row:
+        seats_per_row[row].sort(key=lambda s: s['number'])
     return seats_per_row
 
 
