@@ -26,5 +26,5 @@ def generate_seats_for_session(session_id: uuid.UUID) -> list[Seat]:
         for col in columns:
             seat_number = f'{row}{col}'
             seats.append(Seat(seat_number=seat_number, session_id=session_id))
-        return seats
+    return seats
         

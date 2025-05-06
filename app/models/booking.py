@@ -39,7 +39,7 @@ class BookingUpdate(SQLModel): #This model is for an admin endpoint. To be able 
 
 
 class BookingIn(BookingBase):
-    pass
+    seat_ids: list[uuid.UUID]
 
 
 class BookingPublic(BookingBase):
@@ -61,3 +61,12 @@ class Booking(BookingBase, table=True):
 
     def cancel(self):   #Function to cancel a booking for booking_update endpoint for admins 
         self.is_canceled = True
+
+
+class SeatPublic(SQLModel):
+    id: uuid.UUID
+    seat_number: str
+    is_reserved: bool
+
+class Booking_with_Seats(BookingPublic):
+    seats: list[SeatPublic]
