@@ -18,7 +18,9 @@ user_router = APIRouter()
 
 
 @user_router.post('/token')
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+) -> Token:
     user = authenticate_user(SessionDep, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
@@ -34,7 +36,10 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
 
 @user_router.post('/user/', response_model=UserPublic)
-async def create_user(user: UserPassword, session: SessionDep):
+async def create_user(
+    user: UserPassword, 
+    session: SessionDep
+):
     hashed_password = get_password_hashed(user.password)
     user_in_db = UserInDb(
         username=user.username,
@@ -50,7 +55,8 @@ async def create_user(user: UserPassword, session: SessionDep):
 
 @user_router.post('/logout/')
 async def logout(
-    token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep
+    token: Annotated[str, Depends(oauth2_scheme)], 
+    session: SessionDep
 ):
     result = session.exec(select(TokenRefresh).where(TokenRefresh.token == token)).first()
     if result:

@@ -3,7 +3,7 @@ from app.models import Booking, UserInDb, BookingPublic, BookingIn, Seat, Bookin
 from typing import Annotated, Dict, List
 from app.auths.auth import SessionDep
 from app.auths.dependency import admin_only
-from app.auths.auth import get_current_user
+from app.auths.auth import get_current_user, get_current_active_user
 from uuid import UUID
 from sqlmodel import select
 from fastapi.exceptions import HTTPException
@@ -17,7 +17,7 @@ booking_router = APIRouter()
 async def create_reserve(
     booking_in: BookingIn,
     session: SessionDep,
-    current_user: Annotated[UserInDb, Depends(get_current_user)]
+    current_user: Annotated[UserInDb, Depends(get_current_active_user)]
 ):
     
     seats = session.exec(select(Seat).where(Seat.id.in_(booking_in.seat_ids))).all()
@@ -47,7 +47,7 @@ async def create_reserve(
 @booking_router.get('/user/bookings', response_model=Booking_with_Seats)
 async def get_user_bookings(
     session:SessionDep, 
-    current_user: Annotated[str, Depends(get_current_user)]
+    current_user: Annotated[str, Depends(get_current_active_user)]
 ):
     all_bookings = session.exec(select(Booking).where(Booking.user_id == current_user.id)).all()
     if not all_bookings:
@@ -59,7 +59,7 @@ async def get_user_bookings(
 async def read_booking_by_id(
     booking_id: UUID, 
     session:SessionDep, 
-    current_user: Annotated[str, Depends(get_current_user)]
+    current_user: Annotated[str, Depends(get_current_active_user)]
 ):
     booking = session.exec(select(Booking)
                                  .where(Booking.id == booking_id)
@@ -73,7 +73,7 @@ async def read_booking_by_id(
 @booking_router.get('/user/booking/history', response_model=list[BookingPublic])
 async def read_user_booking_history(
     session: SessionDep, 
-    current_user: Annotated[str, Depends(get_current_user)]
+    current_user: Annotated[str, Depends(get_current_active_user)]
 ):
     present_bookings = session.exec(select(Booking).where(Booking.booking_date >= datetime.now(datetime.UTC))).all()
     past_bookings = session.exec(select(Booking).where(Booking.booking_date <= datetime.now(datetime.UTC))).all()

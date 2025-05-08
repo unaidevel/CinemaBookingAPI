@@ -33,7 +33,4 @@ class Hola(SQLModel):
     conatras: str
     gs: int
 
-@app.post('/', response_model=Hola)
-async def holaa(hola: Hola):
-    print(f'Su objeto es {hola}')
-    return hola
+

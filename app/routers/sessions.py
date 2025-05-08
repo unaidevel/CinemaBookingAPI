@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from typing import Dict, List
 from typing import Annotated
 from app.models import Session, SessionPublic, SessionUpdate, Seat
-from app.auths.auth import SessionDep, get_current_user
+from app.auths.auth import SessionDep, get_current_user, get_current_active_user
 from app.auths.dependency import admin_only
 from sqlmodel import select
 from fastapi.exceptions import HTTPException
@@ -47,7 +47,7 @@ async def read_session_by_id(session_id: UUID, session: SessionDep):
     return film
 
 @session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[Dict[str, bool]]]) #The output, A dict with dicts of every row, bool for if its reserved or not
-async def read_seats_for_session(session_id: UUID, session: SessionDep, current_user:Annotated[str, Depends(get_current_user)]):
+async def read_seats_for_session(session_id: UUID, session: SessionDep, current_user:Annotated[str, Depends(get_current_active_user)]):
     seats = session.exec(select(Seat).where(Seat.session_id==session_id)).all()
     seats_per_row = defaultdict(list)
     for seat in seats:
