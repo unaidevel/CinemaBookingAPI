@@ -8,6 +8,7 @@ from uuid import UUID
 from sqlmodel import select
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import selectinload
+from datetime import datetime
 
 booking_router = APIRouter()
 
@@ -29,6 +30,8 @@ async def create_reserve(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Some seats do not belong to the session')
 
     booking = Booking(**booking_in.model_dump(exclude='seat_ids'))
+    booking.status = 'completed'
+    booking.user_id = current_user.id
     session.add(booking)
     session.commit()
     session.refresh(booking)
@@ -53,9 +56,11 @@ async def get_user_bookings(
     return all_bookings
 
 @booking_router.get('/user/bookings/{booking_id}', response_model=Booking_with_Seats)
-async def read_booking_by_id(booking_id: UUID, session:SessionDep, current_user: Annotated[str, Depends(get_current_user)]
-                             ):
-
+async def read_booking_by_id(
+    booking_id: UUID, 
+    session:SessionDep, 
+    current_user: Annotated[str, Depends(get_current_user)]
+):
     booking = session.exec(select(Booking)
                                  .where(Booking.id == booking_id)
                                  .options(selectinload(Booking.seats))).first()  #selectinload allows to load relationships
@@ -65,6 +70,15 @@ async def read_booking_by_id(booking_id: UUID, session:SessionDep, current_user:
     return booking
     
 
+@booking_router.get('/user/booking/history', response_model=list[BookingPublic])
+async def read_user_booking_history(
+    session: SessionDep, 
+    current_user: Annotated[str, Depends(get_current_user)]
+):
+    present_bookings = session.exec(select(Booking).where(Booking.booking_date >= datetime.now(datetime.UTC))).all()
+    past_bookings = session.exec(select(Booking).where(Booking.booking_date <= datetime.now(datetime.UTC))).all()
+
+    return present_bookings + past_bookings
 
 @booking_router.delete('/booking/cancel_booking/{booking_id}')
 async def delete_booking(

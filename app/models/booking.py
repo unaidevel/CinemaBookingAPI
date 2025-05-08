@@ -1,8 +1,11 @@
 from sqlmodel import SQLModel, Field, Relationship
 import uuid
 from datetime import date, datetime, timezone
-
+from enum import Enum
 from typing import TYPE_CHECKING
+
+
+
 
 if TYPE_CHECKING:
     from .user import UserInDb
@@ -46,11 +49,23 @@ class BookingPublic(BookingBase):
     id: uuid.UUID
     
 
+class BookingStatus(str, Enum):
+    PENDING = 'pending'
+    COMPLETED = 'completed'
+    CANCELED = 'canceled'
+    PAYMENT_PENDING = 'payment pending'
+    EXPIRED = 'expired'
+    CHECKED_IN = 'checked in' #User already assisted to the session
+    NO_SHOW = 'no show' #User didnt show up to the session
+    REFUNDED = 'refunded' #Canceled and money was refunded
+
+
 class Booking(BookingBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     movie_id: uuid.UUID = Field(foreign_key='movie.id')
     session_id: uuid.UUID = Field(foreign_key='session.id')
     user_id: uuid.UUID = Field(foreign_key='userindb.id')
+    status: BookingStatus | None = Field(default=None)
 
     is_canceled: bool = Field(default=False)
 

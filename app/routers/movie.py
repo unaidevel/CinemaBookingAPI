@@ -26,12 +26,28 @@ async def create_movie(movieIn:MovieCreate, session:SessionDep, current_user: An
 
 
 @movie_router.get('/movie', response_model=list[Movie])
-async def read_movie(session: SessionDep, offset:int = 0, limit: Annotated[int, Query(le=100)] = 100) -> list[Movie]:
-    movies = session.exec(select(Movie).offset(offset).limit(limit)).all()
-    if not movies:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found!')
-    return movies
+async def read_movie(
+    session: SessionDep, 
+    title: str | None = None, 
+    genre:str | None = None, 
+    offset:int = 0, 
+    limit: Annotated[int, Query(le=100)] = 100
+) -> list[Movie]:
+    
+    # movies = session.exec(select(Movie).offset(offset).limit(limit)).all()
+    # return movies
+    query = select(Movie)
+    if title:
+        query = query.where(Movie.title.ilike(f"%{title}%")) #ilike insensitive like. It works with pattern % %
+        #with f'{title}' the return would be exactly the words Example: 'mat' wouldnt match with anything. With %% mat can match with words that contain 'mat'
+    if genre:
+        query = query.where(Movie.genre.ilike(f"%{genre}%"))
 
+    query = query.offset(offset).limit(limit)
+    results = session.exec(query).all()
+    if not results:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found!')
+    return results
 
 
 @movie_router.get('/movie/{slug}', response_model=Movie)
