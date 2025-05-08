@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .booking import Booking
+    from .rating import RatingDB
 
 
 
@@ -30,7 +31,8 @@ class UserInDb(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
 
-    bookings: list["Booking"] = Relationship(back_populates='user')
+    bookings: list['Booking'] = Relationship(back_populates='user')
+    rating: list['RatingDB'] = Relationship(back_populates='user')
 
 class UserPublic(UserBase):
     pass
