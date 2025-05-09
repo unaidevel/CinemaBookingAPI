@@ -18,3 +18,8 @@ async def create_review_for_movie(
 ):
     existing_rating = session.exec(select(Movie).where )
     pass
+
+
+@rating_router.get('/movie/review', response_model=RatingPublic)
+async def read_all_reviews(reviews: RatingDB, session: SessionDep):
+    pass

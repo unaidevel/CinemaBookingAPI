@@ -92,5 +92,3 @@ async def delete_booking(
     session.delete(reserve)
     session.commit()
     return {"message": "Booking deleted succesfully!"}
-
-

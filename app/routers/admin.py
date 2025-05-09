@@ -3,12 +3,12 @@ from typing import Annotated
 from app.auths.dependency import admin_only
 from app.models import UserInDb
 
-admin_router = APIRouter()
+router = APIRouter()
 
 
 
 
-@admin_router.post('/admin-only/')
+@router.post('/admin-only/')
 async def admin_only_endpoint(
     current_user: Annotated[UserInDb, Depends(admin_only)]
 ):

@@ -28,9 +28,6 @@ app.include_router(movie_router)
 app.include_router(session_router)
 app.include_router(user_router)
 
-class Hola(SQLModel):
-    hola: str
-    conatras: str
-    gs: int
+
 
 
