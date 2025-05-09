@@ -28,10 +28,10 @@ class RatingCreate(RatingBase):
     pass
 
 class RatingDB(RatingBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
-    movie_id: uuid = Field(foreign_key='movie.id')
-    user_id: uuid = Field(foreign_key='user.id')
+    movie_id: uuid.UUID = Field(foreign_key='movie.id')
+    user_id: uuid.UUID = Field(foreign_key='userindb.id')
 
     user: 'UserInDb' = Relationship(back_populates='ratings')
     movie: 'Movie' = Relationship(back_populates='ratings')
@@ -42,7 +42,7 @@ class RatingPublic(RatingBase):
 
 
 class RatingUpdate(RatingBase):
-    
+
     title: str | None = None
     stars: Stars | None = None
     review: str | None = None
