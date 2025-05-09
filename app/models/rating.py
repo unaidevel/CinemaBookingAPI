@@ -39,3 +39,10 @@ class RatingDB(RatingBase, table=True):
 
 class RatingPublic(RatingBase):
     id: uuid.UUID
+
+
+class RatingUpdate(RatingBase):
+    
+    title: str | None = None
+    stars: Stars | None = None
+    review: str | None = None

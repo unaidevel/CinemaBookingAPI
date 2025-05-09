@@ -1,0 +1,1 @@
+from .dependency import admin_only, manager_only, staff_only

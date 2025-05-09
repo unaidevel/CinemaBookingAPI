@@ -1,4 +1,4 @@
-from app.models import RatingCreate, RatingDB, RatingPublic, Movie
+from app.models import RatingCreate, RatingDB, RatingPublic, Movie, RatingUpdate
 from fastapi import APIRouter, Depends, Query, status
 from app.auths.auth import SessionDep, get_current_active_user, get_current_user
 from typing import Annotated
@@ -35,7 +35,7 @@ async def create_review_for_movie(
 
 
 #return all reviews of a movie
-@rating_router.get('/movie/review', response_model=RatingPublic)
+@rating_router.get('/{movie_id}/ratings', response_model=list[RatingPublic])
 async def read_all_reviews_of_a_movie(
     movie_id: UUID,
     session: SessionDep,
@@ -51,12 +51,41 @@ async def read_all_reviews_of_a_movie(
 
 
 #Search review of a movie by id
-@rating_router.get('/movie/rating/{rating_id}', response_model=RatingPublic)
+@rating_router.get('/{movie_id}/rating/{rating_id}', response_model=RatingPublic)
 async def read_single_review(
+    movie_id: UUID,
     rating_id: UUID,
     session: SessionDep,
 ):
-    review = session.exec(select(RatingDB)).where(RatingDB.id == rating_id).first()
+    review = session.exec(select(RatingDB).where(RatingDB.id == rating_id, RatingDB.movie_id==movie_id)).first()
     if not review:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Review not found!')
     return review
+
+
+@rating_router.patch('/{movie_id}/rating/{rating_id}', response_model=RatingPublic)
+async def edit_single_rating(
+    movie_id: UUID,
+    rating_id: UUID,
+    rating_update: RatingUpdate,
+    session: SessionDep,
+):
+    existing_movie = session.exec(select(Movie).where(Movie.id==movie_id)).first()
+    if not existing_movie:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found!')
+    
+    existing_rating = session.exec(select(RatingDB).where(RatingDB.id==rating_id, RatingDB.movie_id == movie_id)).first()
+    if not existing_rating:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No rating found!')
+    
+    rating_data = rating_update.model_dump(exclude_unset=True)
+
+    existing_rating.sqlmodel_update(rating_data)
+
+    session.add(existing_rating)
+    session.commit()
+    session.refresh(existing_rating)
+    return existing_rating
+
+
+    
