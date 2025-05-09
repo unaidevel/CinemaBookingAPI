@@ -10,7 +10,11 @@ from slugify import slugify
 movie_router = APIRouter()
 
 @movie_router.post('/movie', response_model=Movie)
-async def create_movie(movieIn:MovieCreate, session:SessionDep, current_user: Annotated[UserInDb, Depends(admin_only)]):
+async def create_movie(
+    movieIn:MovieCreate, 
+    session:SessionDep, 
+    current_user: Annotated[UserInDb, Depends(admin_only)]
+):
     # slug = slugify(MovieCreate.title) I removed it because i created the function in Movie model
 
     existing_movie = session.exec(select(Movie).where(Movie.title == movieIn.title)).first()
