@@ -7,7 +7,7 @@ from app.auths.dependency import admin_only
 from sqlmodel import select
 from fastapi.exceptions import HTTPException
 from uuid import UUID
-from app.models.seats import generate_seats_for_session
+from app.models.seats import generate_seats_for_session, release_expired_seats
 from collections import defaultdict
 
 
@@ -57,11 +57,13 @@ async def read_session_by_id(
     return film
 
 @session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[Dict[str, bool]]]) #The output, A dict with dicts of every row, bool for if its reserved or not
-async def read_seats_for_session(
+async def get_available_seats_per_season(
     session_id: UUID, 
     session: SessionDep, 
     current_user:Annotated[str, Depends(get_current_active_user)]
-):
+):  
+    
+    release_expired_seats(session)
     seats = session.exec(select(Seat).where(Seat.session_id==session_id)).all()
     seats_per_row = defaultdict(list)
     for seat in seats:

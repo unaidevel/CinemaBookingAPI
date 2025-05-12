@@ -36,6 +36,10 @@ class RatingDB(RatingBase, table=True):
     user: 'UserInDb' = Relationship(back_populates='ratings')
     movie: 'Movie' = Relationship(back_populates='ratings')
 
+    def sqlmodel_update(self, data: dict):
+        for key, value in data.items():
+            setattr(self, key, value)
+
 
 class RatingPublic(RatingBase):
     id: uuid.UUID

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from app.models import Booking, UserInDb, BookingPublic, BookingIn, Seat, Booking_with_Seats
+from app.models import Booking, UserInDb, BookingPublic, BookingIn, Seat, Booking_with_Seats, release_expired_seats, lock_seats
 from typing import Annotated, Dict, List
 from app.auths.auth import SessionDep
 from app.auths.dependency import admin_only
@@ -19,6 +19,7 @@ async def create_reserve(
     session: SessionDep,
     current_user: Annotated[UserInDb, Depends(get_current_active_user)]
 ):
+    release_expired_seats(session)
     
     seats = session.exec(select(Seat).where(Seat.id.in_(booking_in.seat_ids))).all()
     if len(seats) != len(booking_in.seat_ids):
@@ -29,6 +30,7 @@ async def create_reserve(
     if any(seat.session_id != booking_in.session_id for seat in seats):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Some seats do not belong to the session')
 
+    lock_seats(session, booking_in.seat_ids)
     booking = Booking(**booking_in.model_dump(exclude='seat_ids'))
     booking.status = 'completed'
     booking.user_id = current_user.id

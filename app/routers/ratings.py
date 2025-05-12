@@ -13,7 +13,7 @@ rating_router = APIRouter()
 
 @rating_router.post('/{movie_id}/review', response_model=RatingPublic)
 async def create_review_for_movie(
-    movie_id: str,
+    movie_id: UUID,
     ratingIn: RatingCreate,
     session: SessionDep,
     current_user: Annotated[str, Depends(get_current_active_user)]
@@ -59,7 +59,7 @@ async def read_single_review(
 ):
     review = session.exec(select(RatingDB).where(RatingDB.id == rating_id, RatingDB.movie_id==movie_id)).first()
     if not review:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Review not found!')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not reviews for this movie!')
     return review
 
 
@@ -76,7 +76,7 @@ async def edit_single_rating(
     
     existing_rating = session.exec(select(RatingDB).where(RatingDB.id==rating_id, RatingDB.movie_id == movie_id)).first()
     if not existing_rating:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No rating found!')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not reviews for this movie!')
     
     rating_data = rating_update.model_dump(exclude_unset=True)
 
@@ -86,6 +86,3 @@ async def edit_single_rating(
     session.commit()
     session.refresh(existing_rating)
     return existing_rating
-
-
-    

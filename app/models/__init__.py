@@ -3,4 +3,5 @@ from .session import Session, SessionIn, SessionPublic, SessionUpdate
 from .user import UserInDb, UserPublic, UserPassword, UserUpdate
 from .movie import Movie, MovieUpdate, MovieCreate, MoviePublic
 from .seats import Seat
+from .seats import release_expired_seats, lock_seats, generate_seats_for_session
 from .rating import RatingCreate, RatingDB, RatingPublic, RatingUpdate
