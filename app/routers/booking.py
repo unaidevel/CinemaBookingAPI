@@ -9,6 +9,8 @@ from sqlmodel import select
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import selectinload
 from datetime import datetime
+from app.routers import simple_send, EmailSchema
+
 
 booking_router = APIRouter()
 
@@ -43,6 +45,8 @@ async def create_reserve(
         seat.is_reserved = True
     session.add_all(seats)
     session.commit()
+
+    await simple_send(EmailSchema(email=[current_user.email]))
     return booking
 
 

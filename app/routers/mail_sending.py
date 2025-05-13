@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter
+# from fastapi import APIRouter
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from pydantic import BaseModel, EmailStr
 from starlette.responses import JSONResponse
@@ -18,21 +18,21 @@ conf = ConnectionConfig(
     MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
     MAIL_FROM=os.getenv('MAIL_FROM'),
     MAIL_PORT=587,
-    MAIL_SERVER="smtp.zoho.eu",  # Puede ser .com o .eu según tu dominio
+    MAIL_SERVER="smtp.zoho.eu",  
     MAIL_TLS=True,
     MAIL_SSL=False,
     USE_CREDENTIALS=True,
 )
 
 
-email_router = APIRouter()
+# email_router = APIRouter()
 
 
-@email_router.post('/email')
+# @email_router.post('/email')
 async def simple_send(email_to:EmailSchema):
     message = MessageSchema(
         subject='Booking confirmation',
-        recipients=[email_to],
+        recipients=email_to.email,
         body='Thank you for your booking. Enjoy the film!',
         subtype='plain'
     )
