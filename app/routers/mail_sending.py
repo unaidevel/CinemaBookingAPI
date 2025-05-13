@@ -19,8 +19,8 @@ conf = ConnectionConfig(
     MAIL_FROM=os.getenv('MAIL_FROM'),
     MAIL_PORT=587,
     MAIL_SERVER="smtp.zoho.eu",  
-    MAIL_TLS=True,
-    MAIL_SSL=False,
+    MAIL_STARTTLS = False,
+    MAIL_SSL_TLS = True,
     USE_CREDENTIALS=True,
 )
 

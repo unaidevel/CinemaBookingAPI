@@ -9,7 +9,8 @@ from sqlmodel import select
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import selectinload
 from datetime import datetime
-from app.routers import simple_send, EmailSchema
+# from app.routers import simple_send, EmailSchema
+from app.routers.mail_sending import simple_send, EmailSchema
 
 
 booking_router = APIRouter()
