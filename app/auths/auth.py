@@ -16,7 +16,7 @@ from uuid import UUID
 
 # settings = get_settings()
 
-SECRET_KEY = SECRET_KEY
+
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_TIME = 60 * 24 * 7

@@ -49,12 +49,12 @@ def refresh_access_token(
     refresh_token: str = Body(...), 
 ) -> AccessToken:
     try:
-        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=ALGORITHM)
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("username")
         if username is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
     except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token, JWT Error')
     
     db_token = session.exec(select(TokenRefresh).where(TokenRefresh.token==refresh_token)).first()
 
@@ -66,7 +66,9 @@ def refresh_access_token(
 
     new_access_token = create_access_token(data={"username": username})
 
-    return {"access_token": new_access_token, "token_type": "bearer"}
+    return {"access_token": new_access_token, 
+            "token_type": "bearer"
+    }
 
 
 
