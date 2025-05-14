@@ -1,37 +1,61 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Body
 from sqlmodel import select
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
 from app.database import SessionDep
 from datetime import timedelta
-from app.auths.auth import create_access_token, authenticate_user, get_password_hashed, get_current_user
+from app.auths.auth import create_access_token, authenticate_user, get_password_hashed, get_current_user, create_refresh_token
 from app.auths.auth import oauth2_scheme
 from app.auths.utils import TokenRefresh, Token
 from app.auths.auth import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.models import UserInDb, UserPassword, UserPublic
 from fastapi.exceptions import HTTPException
-
-
+import jwt
+from app.config import SECRET_KEY
+from jose.exceptions import JWTError
 
 user_router = APIRouter()
 
-
+ALGORITHM = 'HS256'
 
 @user_router.post('/token')
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: SessionDep
 ) -> Token:
-    user = authenticate_user(SessionDep, form_data.username, form_data.password)
+    user = authenticate_user(form_data.username, form_data.password, session)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
-                            detail='User not found', headers={"WWW-Authenticate": "Bearer"})
+        raise HTTPException(status_code=status.HTTP_401_NOT_FOUND, 
+                            detail='Incorrent username or password', headers={"WWW-Authenticate": "Bearer"})
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"username": user.username}, expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
+
+    refresh_token = create_refresh_token(data={"username": user.username})
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
+
+    # return Token(access_token=access_token, token_type="bearer")
 
 
+@user_router.post('/refresh')
+def refresh_access_token(refresh_token: str = Body(...)):
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=ALGORITHM)
+        username: str = payload.get("username")
+        if username is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
+    
+    new_access_token = create_access_token(data={"username": username})
+
+    return {"access_token": new_access_token, "token_type": "bearer"}
 
 
 

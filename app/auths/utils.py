@@ -1,8 +1,12 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 import uuid
 from datetime import datetime
 from pydantic import BaseModel
+from typing import TYPE_CHECKING
 
+
+if TYPE_CHECKING:
+    from app.models import UserInDb
 
 class Token(BaseModel):
     access_token: str
@@ -16,3 +20,7 @@ class TokenRefresh(SQLModel, table=True):
     token: str = Field(unique=True, index=True)
     user_id: uuid.UUID = Field(foreign_key='userindb.id')
     date_created: datetime = Field(default=datetime.now())
+
+
+    user: 'UserInDb' = Relationship(back_populates='refresh_tokens')
+

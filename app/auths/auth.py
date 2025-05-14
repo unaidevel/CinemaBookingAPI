@@ -11,13 +11,14 @@ import jwt
 from typing import Annotated
 from jwt.exceptions import InvalidTokenError
 from sqlmodel import select
-from app.config import DATABASE_URL
+from app.config import DATABASE_URL, SECRET_KEY
 
 # settings = get_settings()
 
-SECRET_KEY = DATABASE_URL
+SECRET_KEY = SECRET_KEY
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_TIME = 60 * 24 * 7
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -32,7 +33,7 @@ def get_password_hashed(password):
 
 
 def get_user(username: str, session: SessionDep) -> UserInDb | None:
-    user = session.exec(UserInDb).filter(UserInDb.username == username).first()
+    user = session.exec(select(UserInDb).where(UserInDb.username == username)).first()
     if user:
         return user
         # user_dict = user.__dict__ #As i saw, if i dont have schemas, its essential to convert the pydantic to dict, and remove the password
@@ -57,6 +58,14 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     else: 
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.now(datetime.UTC) + timedelta(minutes=REFRESH_TOKEN_EXPIRE_TIME)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -113,4 +122,4 @@ def validate_refresh_token(token: Annotated[str, Depends(oauth2_scheme)], sessio
         result = session.exec(select(TokenRefresh).where(TokenRefresh.token == token)).first()
         return result
     except Exception as e:
-        return credentials_exception
+        return credentials_exception    

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .booking import Booking
     from .rating import RatingDB
+    from auths.utils import TokenRefresh
 
 
 
@@ -36,6 +37,7 @@ class UserInDb(UserBase, table=True):
 
     bookings: list['Booking'] = Relationship(back_populates='user')
     ratings: list['RatingDB'] = Relationship(back_populates='user')
+    refresh_tokens: list['TokenRefresh'] = Relationship(back_populates='user')
 
 class UserPublic(UserBase):
     pass
