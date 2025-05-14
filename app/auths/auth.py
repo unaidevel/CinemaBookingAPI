@@ -2,7 +2,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from app.database import SessionDep
-from app.models import UserPublic, UserPassword, UserInDb
+from app.models import UserPublic, UserPassword, UserInDb, UserCreate
 from app.auths.utils import TokenRefresh, Token, TokenData
 from fastapi.exceptions import HTTPException
 from fastapi import status, Depends
@@ -10,13 +10,12 @@ from datetime import timedelta, datetime, timezone
 import jwt 
 from typing import Annotated
 from jwt.exceptions import InvalidTokenError
-from app.config import get_settings
 from sqlmodel import select
+from app.config import DATABASE_URL
 
+# settings = get_settings()
 
-settings = get_settings()
-
-SECRET_KEY = settings.SECRET_KEY
+SECRET_KEY = DATABASE_URL
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -29,13 +28,13 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hashed(password):
-    pwd_context.hash(password)
+    return pwd_context.hash(password)
 
 
 def get_user(username: str, session: SessionDep) -> UserInDb | None:
     user = session.exec(UserInDb).filter(UserInDb.username == username).first()
     if user:
-        return UserPublic(username=user.username, is_active=user.is_active)
+        return user
         # user_dict = user.__dict__ #As i saw, if i dont have schemas, its essential to convert the pydantic to dict, and remove the password
         # user_dict.pop('hashed_password', None)
         # return user_dict
@@ -98,7 +97,7 @@ class RoleChecker:
         self.allowed_roles = allowed_roles
     
     def __call__(self, user: Annotated[UserInDb, Depends(get_current_active_user)]):
-        if UserInDb.role in self.allowed_roles:
+        if user.role in self.allowed_roles:
             return True
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
                             detail="You don't have enough permissions")
@@ -113,5 +112,5 @@ def validate_refresh_token(token: Annotated[str, Depends(oauth2_scheme)], sessio
     try:
         result = session.exec(select(TokenRefresh).where(TokenRefresh.token == token)).first()
         return result
-    except:
+    except Exception as e:
         return credentials_exception

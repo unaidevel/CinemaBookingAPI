@@ -8,8 +8,10 @@ app = FastAPI()
 
 
 
-# def create_db_and_tables():
-#     SQLModel.metadata.create_all(engine)
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+create_db_and_tables()
 
 
 # @app.on_event('startup')
@@ -20,6 +22,7 @@ app = FastAPI()
 @app.on_event('startup')
 def on_startup():
     pass
+
 
 
 app.include_router(admin_router)

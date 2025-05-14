@@ -13,16 +13,16 @@ if TYPE_CHECKING:
 
 class UserBase(SQLModel):
 
-    username: str = Field(max_length=15)
-    full_name: str = Field(max_length=20)
-    email: EmailStr = Field(unique=True)
-    role: str = Field(default='user')
-    disabled: bool | None = None
+    username: str = Field(max_length=15, nullable=False)
+    full_name: str = Field(max_length=20, nullable=False)
+    email: EmailStr = Field(unique=True, nullable=False)
     birth_date: date
-    is_active: bool
 
     # booking: List['Booking'] = Relationship(back_populates='user')
 
+
+class UserCreate(UserBase):
+    pass
 
 class UserPassword(UserBase):
     password: str
@@ -30,9 +30,12 @@ class UserPassword(UserBase):
 class UserInDb(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
+    disabled: bool | None = None
+    is_active: bool
+    role: str = Field(default='user')
 
     bookings: list['Booking'] = Relationship(back_populates='user')
-    rating: list['RatingDB'] = Relationship(back_populates='user')
+    ratings: list['RatingDB'] = Relationship(back_populates='user')
 
 class UserPublic(UserBase):
     pass

@@ -3,7 +3,6 @@ from sqlalchemy import create_engine
 from fastapi import Depends
 from sqlmodel import Session
 from typing import Annotated
-from app.config import get_settings
 from dotenv import load_dotenv
 
 load_dotenv()

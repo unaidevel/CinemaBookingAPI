@@ -11,6 +11,7 @@ from slugify import slugify
 if TYPE_CHECKING:
     from .session import Session
     from .booking import Booking
+    from .rating import RatingDB
 
 
 
@@ -54,6 +55,8 @@ class Movie(MovieBase, table=True):
     slug: str = Field(unique=True, index=True)
     sessions: list['Session'] = Relationship(back_populates='movie')
     bookings: list['Booking'] = Relationship(back_populates='movie')
+    ratings: list['RatingDB'] = Relationship(back_populates='movie')
+
 
 
     def generate_slug(self):

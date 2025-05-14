@@ -35,16 +35,19 @@ async def login_for_access_token(
 
 
 
-@user_router.post('/user/', response_model=UserPublic)
+@user_router.post('/user', response_model=UserPublic)
 async def create_user(
     user: UserPassword, 
     session: SessionDep
 ):
-    hashed_password = get_password_hashed(user.password)
+    create_hashed_password = get_password_hashed(user.password)
     user_in_db = UserInDb(
         username=user.username,
-        hashed_password=hashed_password,
+        full_name=user.full_name,
+        email=user.email,
+        hashed_password=create_hashed_password,
         is_active=True,
+        birth_date=user.birth_date,
         role='user'
     )
     session.add(user_in_db)
@@ -53,7 +56,7 @@ async def create_user(
     return user_in_db
 
 
-@user_router.post('/logout/')
+@user_router.post('/logout')
 async def logout(
     token: Annotated[str, Depends(oauth2_scheme)], 
     session: SessionDep
@@ -67,7 +70,7 @@ async def logout(
 
 
 
-@user_router.post('/user/me/', response_model=UserPublic)
+@user_router.post('/user/me', response_model=UserPublic)
 async def read_user_me(
     current_user: Annotated[UserInDb, Depends(get_current_user)]
 ):
