@@ -3,16 +3,15 @@ from sqlmodel import select
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
 from app.database import SessionDep
-from datetime import timedelta
-from app.auths.auth import create_access_token, authenticate_user, get_password_hashed, get_current_user, create_refresh_token
+from datetime import timedelta, datetime
+from app.auths.auth import create_access_token, authenticate_user, get_password_hashed, get_current_user, create_refresh_token_in_db
 from app.auths.auth import oauth2_scheme
-from app.auths.utils import TokenRefresh, Token
+from app.auths.utils import TokenRefresh, Token, AccessToken
 from app.auths.auth import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.models import UserInDb, UserPassword, UserPublic
 from fastapi.exceptions import HTTPException
-import jwt
 from app.config import SECRET_KEY
-from jose.exceptions import JWTError
+from jose import JWTError, jwt
 
 user_router = APIRouter()
 
@@ -32,7 +31,7 @@ async def login_for_access_token(
         data={"username": user.username}, expires_delta=access_token_expires
     )
 
-    refresh_token = create_refresh_token(data={"username": user.username})
+    refresh_token = create_refresh_token_in_db(user.id, user.username, session)
 
     return {
         "access_token": access_token,
@@ -40,11 +39,15 @@ async def login_for_access_token(
         "token_type": "bearer"
     }
 
+
     # return Token(access_token=access_token, token_type="bearer")
 
 
 @user_router.post('/refresh')
-def refresh_access_token(refresh_token: str = Body(...)):
+def refresh_access_token(
+    session: SessionDep, 
+    refresh_token: str = Body(...), 
+) -> AccessToken:
     try:
         payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=ALGORITHM)
         username: str = payload.get("username")
@@ -53,6 +56,14 @@ def refresh_access_token(refresh_token: str = Body(...)):
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
     
+    db_token = session.exec(select(TokenRefresh).where(TokenRefresh.token==refresh_token)).first()
+
+    if not db_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid refresh token!')
+    if db_token.expires_at < datetime.now(datetime.UTC):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Refresh token expired!')
+
+
     new_access_token = create_access_token(data={"username": username})
 
     return {"access_token": new_access_token, "token_type": "bearer"}

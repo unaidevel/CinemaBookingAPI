@@ -17,6 +17,7 @@ click==8.1.8
 dill==0.3.9
 Django==5.2
 dnspython==2.7.0
+ecdsa==0.19.1
 email_validator==2.2.0
 fastapi==0.115.12
 fastapi-admin==1.0.4
@@ -42,6 +43,7 @@ passlib==1.7.4
 pendulum==3.0.0
 platformdirs==4.3.7
 psycopg2-binary==2.9.10
+pyasn1==0.4.8
 pydantic==2.11.1
 pydantic-extra-types==2.10.3
 pydantic-settings==2.8.1
@@ -52,11 +54,13 @@ pylint==3.3.6
 pypika-tortoise==0.5.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
+python-jose==3.4.0
 python-multipart==0.0.20
 pytz==2025.2
 PyYAML==6.0.2
 rich==14.0.0
 rich-toolkit==0.14.1
+rsa==4.9.1
 shellingham==1.5.4
 six==1.17.0
 slugify==0.0.1

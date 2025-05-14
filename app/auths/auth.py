@@ -6,12 +6,13 @@ from app.models import UserPublic, UserPassword, UserInDb, UserCreate
 from app.auths.utils import TokenRefresh, Token, TokenData
 from fastapi.exceptions import HTTPException
 from fastapi import status, Depends
-from datetime import timedelta, datetime, timezone
+from datetime import timedelta, datetime, timezone, UTC
 import jwt 
 from typing import Annotated
 from jwt.exceptions import InvalidTokenError
 from sqlmodel import select
 from app.config import DATABASE_URL, SECRET_KEY
+from uuid import UUID
 
 # settings = get_settings()
 
@@ -65,10 +66,26 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 def create_refresh_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.now(datetime.UTC) + timedelta(minutes=REFRESH_TOKEN_EXPIRE_TIME)
+    expire = datetime.now(UTC) + timedelta(minutes=REFRESH_TOKEN_EXPIRE_TIME)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def create_refresh_token_in_db(user_id: UUID, username: str, session: SessionDep) -> str:
+    refresh_token = create_refresh_token(data={"username": username})
+
+    expires_at = datetime.now(UTC) + timedelta(minutes=REFRESH_TOKEN_EXPIRE_TIME)
+
+    db_token = TokenRefresh(
+        token=refresh_token,
+        user_id=user_id,
+        expires_at=expires_at
+    )
+    session.add(db_token)
+    session.commit()
+    session.refresh(db_token)
+    return db_token.token
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
