@@ -24,7 +24,6 @@ def on_startup():
     pass
 
 
-
 app.include_router(admin_router)
 app.include_router(booking_router)
 app.include_router(movie_router)
@@ -35,3 +34,10 @@ app.include_router(rating_router)
 
 
 
+
+from app.auths.auth import hola
+
+@app.get('/hola/')
+def helllo():
+    hola()
+    return 'success '

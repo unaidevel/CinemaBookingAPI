@@ -13,6 +13,12 @@ from jwt.exceptions import InvalidTokenError
 from sqlmodel import select
 from app.config import DATABASE_URL, SECRET_KEY
 from uuid import UUID
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+# SECRET_KEY = '384c5171826b2de26b21c4d669b3d084dceb909ed06dd54ce56c2cfe2e7ad46d5af139cfff0c1e1e334784b73e7356138c10c18075bac9605629d1f9e025d71b66df1e51b57861ae59fdefc0b88320657731a66c8fee956cda9090dca5a8eb251ad8ecbc6eacbc40cf283deb6c7f015c213d0851d93c770a173c36e0801f763263520146b48e4e3425f95787b1506f24e9f094479ebd23c1931632b9cc665a4fe5d0b9f7789f061ff8a73886a54eda85b9dca4c6af4b45d9ca47c537549cf77d981135990f280a9098dd40fce7d6a81283f77623ab02f5e909a9a392cd486d1520f5bc02d54aa58376cbfd01d41b308ac5a93934cfc19de3b25c2df81bd327dd'
 
 # settings = get_settings()
 
@@ -52,6 +58,11 @@ def authenticate_user(username: str, password: str, session:SessionDep):
         return False
     return user
 
+def hola():
+    print(SECRET_KEY)
+    return hola   
+
+
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
@@ -60,7 +71,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm='HS256')
     return encoded_jwt
 
 
@@ -68,7 +79,7 @@ def create_refresh_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(UTC) + timedelta(minutes=REFRESH_TOKEN_EXPIRE_TIME)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm='HS256')
     return encoded_jwt
 
 
@@ -97,7 +108,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     )
     
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         username = payload.get('username')
         if username is None:
             raise credentials_exception
