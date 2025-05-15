@@ -31,13 +31,3 @@ app.include_router(session_router)
 app.include_router(user_router)
 app.include_router(rating_router)
 
-
-
-
-
-from app.auths.auth import hola
-
-@app.get('/hola/')
-def helllo():
-    hola()
-    return 'success '
