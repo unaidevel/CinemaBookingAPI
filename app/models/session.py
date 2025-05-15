@@ -36,9 +36,17 @@ class Session(SessionBase, table=True):
     movie_id: uuid.UUID = Field(foreign_key='movie.id')
     # session_time: date = Field(default_factory=lambda: datetime.now(timezone.utc).date())
 
+    disabled: bool = False
+
     movie: 'Movie' = Relationship(back_populates='sessions')
     bookings: list['Booking'] = Relationship(back_populates='session')
     seats: list['Seat'] = Relationship(back_populates='session')
+
+    def check_and_disable(self):
+        if not self.disabled and datetime.now(timezone.utc) > self.session_time:
+            self.disabled = True
+            return True
+        return False
 
 
 # class Session(SQLModel, table=True):

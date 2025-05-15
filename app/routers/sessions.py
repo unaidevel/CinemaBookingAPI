@@ -9,6 +9,7 @@ from fastapi.exceptions import HTTPException
 from uuid import UUID
 from app.models.seats import generate_seats_for_session, release_expired_seats
 from collections import defaultdict
+from datetime import datetime, timezone, UTC
 
 
 session_router = APIRouter()
@@ -41,10 +42,29 @@ async def read_sessions(
     offset:int = 0, 
     limit: Annotated[int, Query(le=100)]= 100
 ) -> list[Session]:
-    all_sessions = session.exec(select(Session).offset(offset).limit(limit)).all()
+    all_sessions = session.exec(select(Session)).all()
     if not all_sessions:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not sessions ongoing!')
-    return all_sessions
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not sessions created')
+    
+    changes = False
+
+    for s in all_sessions:
+        if s.check_and_disable():
+            session.add(s)
+            changes = True
+    
+    if changes:
+        session.commit()
+
+    query = select(Session).where(Session.disabled == False)
+    final_query = query.offset(offset).limit(limit)
+    active_sessions = session.exec(final_query).all()
+
+    if not active_sessions:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not active sessions ongoing!')
+    return active_sessions
+
+
 
 @session_router.get('/sessions/{session_id}', response_model=SessionPublic)
 async def read_session_by_id(
@@ -110,3 +130,10 @@ async def delete_session(
     session.delete(specific_session)
     session.commit()
     return {"message": "Session deleted succesfully!"}
+
+
+# @session_router.get('/sessions/admin')
+# async def read_all_available_sessions(
+#     session: SessionDep):
+#     all_sessions = session.exec(select(Session).where(Session.session_time > datetime.now(timezone.utc)))
+#     return all_sessions
