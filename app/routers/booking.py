@@ -16,7 +16,7 @@ from app.routers.mail_sending import simple_send, EmailSchema
 booking_router = APIRouter()
 
 
-@booking_router.post('/session/{session_id}/booking', response_model=BookingPublic)
+@booking_router.post('/session/{session_id}/booking', response_model=BookingPublic, tags=['Bookings'])
 async def create_reserve(
     booking_in: BookingIn,
     session: SessionDep,

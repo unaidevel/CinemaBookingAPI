@@ -3,10 +3,55 @@ import pytest
 from httpx import AsyncClient
 from sqlmodel import SQLModel, Session
 from main import app
-from app.models import Movie, GenreEnum
+from app.models.movie import Movie, GenreEnum
 from app.database import engine
 
 from datetime import date
+
+
+
+import pytest
+from fastapi.testclient import TestClient
+from app.models import GenreEnum
+from datetime import date
+import uuid
+
+client = TestClient(app)
+
+# Este helper depende de cómo generes tus JWT
+def get_auth_header(token: str):
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def movie_data():
+    return {
+        "title": "Inception",
+        "description": "A mind-bending thriller",
+        "release_date": str(date(2010, 7, 16)),
+        "duration": 148,
+        "genre": "thriller"
+    }
+
+@pytest.fixture
+def admin_token():
+
+    #returns admin token
+
+    return "tu_token_admin_valido"
+
+@pytest.fixture
+def non_admin_token():
+    # Returns user token, (not admin)
+    return "tu_token_normal_valido"
+
+
+
+
+
+
+
+
 
 @pytest.fixture(name="client")
 async def client_fixture():
