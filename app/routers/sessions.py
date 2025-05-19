@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from typing import Dict, List
 from typing import Annotated
-from app.models import Session, SessionPublic, SessionUpdate, Seat, SessionIn
+from app.models import Session, SessionPublic, SessionUpdate, Seat, SessionCreate, Movie
 from app.auths.auth import SessionDep, get_current_user, get_current_active_user
 from app.auths.dependency import admin_only
 from sqlmodel import select
@@ -18,11 +18,16 @@ session_router = APIRouter()
 
 @session_router.post('/sessions', response_model=SessionPublic, tags=['Sessions'])
 async def create_session(
-    new_session: SessionIn,
+    new_session: SessionCreate,
     session: SessionDep, 
     current_user: Annotated[str, Depends(admin_only)]
 ):
-    session_existing = session.exec(select(Session).where(Session.id == new_session.id)).first()
+    movie_id_is_valid = session.exec(select(Movie).where(Movie.id==new_session.movie_id))
+    if movie_id_is_valid is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Movie id does not exist!')
+    
+    session_existing = session.exec(select(Session).where((Session.movie_id == new_session.movie_id) 
+    & (Session.session_time== new_session.session_time))).first()
     if session_existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Session already exists!')
     
@@ -76,7 +81,8 @@ async def read_session_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found')
     return film
 
-@session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[Dict[str, bool]]], tags=['Sessions'])
+# response_model=Dict[str, List[Dict[str, bool]]]
+@session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[Seat]], tags=['Sessions'])
 #The output, A dict with dicts of every row, bool for if its reserved or not
 async def get_available_seats_per_season(
     session_id: UUID, 

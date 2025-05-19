@@ -17,9 +17,10 @@ class SessionBase(SQLModel):
     session_time: datetime
     room: str
     price: float
+    movie_id: uuid.UUID = Field(foreign_key='movie.id')
 
-class SessionIn(SessionBase):
-    movie_id: uuid.UUID
+class SessionCreate(SessionBase):
+    pass
 
 class SessionPublic(SessionBase):
     id: uuid.UUID
@@ -33,7 +34,6 @@ class SessionUpdate(SQLModel):
 
 class Session(SessionBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    movie_id: uuid.UUID = Field(foreign_key='movie.id')
     # session_time: date = Field(default_factory=lambda: datetime.now(timezone.utc).date())
 
     disabled: bool = False
@@ -43,7 +43,8 @@ class Session(SessionBase, table=True):
     seats: list['Seat'] = Relationship(back_populates='session')
 
     def check_and_disable(self):
-        if not self.disabled and datetime.now(timezone.utc) > self.session_time:
+        # if not self.disabled and datetime.now(timezone.utc) > self.session_time:
+        if not self.disabled and self.session_time.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):   #Neeeded to establish tzinfo(Represents time zone info)
             self.disabled = True
             return True
         return False

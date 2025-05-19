@@ -41,7 +41,7 @@ class BookingUpdate(SQLModel): #This model is for an admin endpoint. To be able 
 
 
 
-class BookingIn(BookingBase):
+class BookingIn(SQLModel):
     seat_ids: list[uuid.UUID]
 
 
@@ -85,3 +85,5 @@ class SeatPublic(SQLModel):
 
 class Booking_with_Seats(BookingPublic):
     seats: list[SeatPublic]
+
+

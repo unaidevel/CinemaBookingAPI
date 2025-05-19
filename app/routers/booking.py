@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from app.models import Booking, UserInDb, BookingPublic, BookingIn, Seat, Booking_with_Seats, release_expired_seats, lock_seats
+from app.models import Booking, UserInDb, Session, BookingPublic, BookingIn, Seat, BookingOut, Booking_with_Seats, release_expired_seats, lock_seats
 from typing import Annotated, Dict, List
 from app.auths.auth import SessionDep
 from app.auths.dependency import admin_only
@@ -18,25 +18,35 @@ booking_router = APIRouter()
 
 @booking_router.post('/session/{session_id}/booking', response_model=BookingPublic, tags=['Bookings'])
 async def create_reserve(
+    session_id: UUID,
     booking_in: BookingIn,
     session: SessionDep,
     current_user: Annotated[UserInDb, Depends(get_current_active_user)]
 ):
     release_expired_seats(session)
+
+    if not booking_in.seat_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='seat_ids cannot be empty')
     
-    seats = session.exec(select(Seat).where(Seat.id.in_(booking_in.seat_ids))).all()
+    seats = session.exec(select(Seat).where(Seat.session_id==session_id, Seat.id.in_(booking_in.seat_ids))).all()
+    # seats = session.exec(select(Seat).where(Seat.id.in_(booking_in.seat_ids))).all()
     if len(seats) != len(booking_in.seat_ids):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='One or more seats not found')
     if any(seat.is_reserved for seat in seats):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='One or more seats already reserved')
-    
-    if any(seat.session_id != booking_in.session_id for seat in seats):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Some seats do not belong to the session')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='One or more seats already reserved')
+    # if any(seat.session_id != booking_in.session_id for seat in seats):
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Some seats do not belong to the session')
 
     lock_seats(session, booking_in.seat_ids)
+    film_session = session.exec(select(Session).where(Session.id==session_id)).first()
+    if not film_session:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Session not found')
+    
     booking = Booking(**booking_in.model_dump(exclude='seat_ids'))
     booking.status = 'completed'
+    booking.movie_id = film_session.movie_id
     booking.user_id = current_user.id
+    booking.session_id = session_id
     session.add(booking)
     session.commit()
     session.refresh(booking)
@@ -47,20 +57,20 @@ async def create_reserve(
     session.add_all(seats)
     session.commit()
 
-    await simple_send(EmailSchema(email=[current_user.email]))
+    # await simple_send(EmailSchema(email=[current_user.email]))
     return booking
 
 
-@booking_router.get('/user/bookings', response_model=Booking_with_Seats, tags=['Bookings'])
+@booking_router.get('/user/bookings', response_model=list[BookingPublic], tags=['Bookings'])
 async def get_user_bookings(
     session:SessionDep, 
-    current_user: Annotated[str, Depends(get_current_active_user)]
+    current_user: Annotated[UserInDb, Depends(get_current_active_user)]
 ):
     all_bookings = session.exec(select(Booking).where(Booking.user_id == current_user.id)).all()
     if not all_bookings:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Seats not found!')
-    
-    return all_bookings
+    bookings = [BookingPublic.model_validate(b) for b in all_bookings]
+    return bookings
 
 @booking_router.get('/user/bookings/{booking_id}', response_model=Booking_with_Seats, tags=['Bookings'])
 async def read_booking_by_id(
@@ -87,7 +97,7 @@ async def read_user_booking_history(
 
     return present_bookings + past_bookings
 
-@booking_router.delete('/booking/cancel_booking/{booking_id}', tags=['Bookings'])
+@booking_router.delete('/bookings/cancel_booking/{booking_id}', tags=['Bookings'])
 async def delete_booking(
     booking_id:UUID, 
     session: SessionDep, 
