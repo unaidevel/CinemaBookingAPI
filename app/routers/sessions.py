@@ -16,7 +16,7 @@ session_router = APIRouter()
 
 
 
-@session_router.post('/sessions', response_model=SessionPublic)
+@session_router.post('/sessions', response_model=SessionPublic, tags=['Sessions'])
 async def create_session(
     new_session: SessionIn,
     session: SessionDep, 
@@ -36,7 +36,7 @@ async def create_session(
     session.commit()
     return new_session
 
-@session_router.get('/sessions', response_model=list[SessionPublic])
+@session_router.get('/sessions', response_model=list[SessionPublic], tags=['Sessions'])
 async def read_sessions(
     session: SessionDep, 
     offset:int = 0, 
@@ -66,7 +66,7 @@ async def read_sessions(
 
 
 
-@session_router.get('/sessions/{session_id}', response_model=SessionPublic)
+@session_router.get('/sessions/{session_id}', response_model=SessionPublic, tags=['Sessions'])
 async def read_session_by_id(
     session_id: UUID, 
     session: SessionDep
@@ -76,7 +76,8 @@ async def read_session_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found')
     return film
 
-@session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[Dict[str, bool]]]) #The output, A dict with dicts of every row, bool for if its reserved or not
+@session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[Dict[str, bool]]], tags=['Sessions'])
+#The output, A dict with dicts of every row, bool for if its reserved or not
 async def get_available_seats_per_season(
     session_id: UUID, 
     session: SessionDep, 
@@ -101,7 +102,7 @@ async def get_available_seats_per_season(
 
 
 
-@session_router.patch('/sessions/{session_id}', response_model=SessionPublic)
+@session_router.patch('/sessions/{session_id}', response_model=SessionPublic, tags=['Sessions'])
 async def update_session_by_id(
     session_id:UUID, 
     session_update: SessionUpdate, 
@@ -120,7 +121,7 @@ async def update_session_by_id(
     return specific_session
 
 
-@session_router.delete('/sessions/{session_id}')
+@session_router.delete('/sessions/{session_id}', tags=['Sessions'])
 async def delete_session(
     session_id: UUID, 
     session: SessionDep, 

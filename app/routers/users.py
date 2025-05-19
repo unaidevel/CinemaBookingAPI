@@ -17,7 +17,7 @@ user_router = APIRouter()
 
 ALGORITHM = 'HS256'
 
-@user_router.post('/token')
+@user_router.post('/token', tags=['User'])
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: SessionDep
@@ -43,7 +43,7 @@ async def login_for_access_token(
     # return Token(access_token=access_token, token_type="bearer")
 
 
-@user_router.post('/refresh')
+@user_router.post('/refresh', tags=['User'])
 def refresh_access_token(
     token_data: RefreshTokenRequest,
     session: SessionDep
@@ -81,7 +81,7 @@ def refresh_access_token(
 
 
 
-@user_router.post('/user', response_model=UserPublic)
+@user_router.post('/user', response_model=UserPublic, tags=['User'])
 async def create_user(
     user: UserPassword, 
     session: SessionDep
@@ -102,7 +102,7 @@ async def create_user(
     return user_in_db
 
 
-@user_router.post('/logout')
+@user_router.post('/logout', tags=['User'])
 async def logout(
     token: Annotated[str, Depends(oauth2_scheme)], 
     session: SessionDep
@@ -116,7 +116,7 @@ async def logout(
 
 
 
-@user_router.post('/user/me', response_model=UserPublic)
+@user_router.post('/user/me', response_model=UserPublic, tags=['User'])
 async def read_user_me(
     current_user: Annotated[UserInDb, Depends(get_current_user)]
 ):

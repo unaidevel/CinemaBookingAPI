@@ -11,7 +11,7 @@ from fastapi.exceptions import HTTPException
 rating_router = APIRouter()
 
 
-@rating_router.post('/{movie_id}/review', response_model=RatingPublic)
+@rating_router.post('/{movie_id}/review', response_model=RatingPublic, tags=['Ratings'])
 async def create_review_for_movie(
     movie_id: UUID,
     ratingIn: RatingCreate,
@@ -35,7 +35,7 @@ async def create_review_for_movie(
 
 
 #return all reviews of a movie
-@rating_router.get('/{movie_id}/ratings', response_model=list[RatingPublic])
+@rating_router.get('/{movie_id}/ratings', response_model=list[RatingPublic], tags=['Ratings'])
 async def read_all_reviews_of_a_movie(
     movie_id: UUID,
     session: SessionDep,
@@ -51,7 +51,7 @@ async def read_all_reviews_of_a_movie(
 
 
 #Search review of a movie by id
-@rating_router.get('/{movie_id}/rating/{rating_id}', response_model=RatingPublic)
+@rating_router.get('/{movie_id}/rating/{rating_id}', response_model=RatingPublic, tags=['Ratings'])
 async def read_single_review(
     movie_id: UUID,
     rating_id: UUID,
@@ -63,7 +63,7 @@ async def read_single_review(
     return review
 
 
-@rating_router.patch('/{movie_id}/rating/{rating_id}', response_model=RatingPublic)
+@rating_router.patch('/{movie_id}/rating/{rating_id}', response_model=RatingPublic, tags=['Ratings'])
 async def edit_single_rating(
     movie_id: UUID,
     rating_id: UUID,

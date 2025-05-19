@@ -8,7 +8,7 @@ admin_router = APIRouter()
 
 
 
-@admin_router.post('/admin-only/')
+@admin_router.post('/admin-only/', tags=['Admin'])
 async def admin_only_endpoint(
     current_user: Annotated[UserInDb, Depends(admin_only)]
 ):

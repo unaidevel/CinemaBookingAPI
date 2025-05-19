@@ -51,7 +51,7 @@ async def create_reserve(
     return booking
 
 
-@booking_router.get('/user/bookings', response_model=Booking_with_Seats)
+@booking_router.get('/user/bookings', response_model=Booking_with_Seats, tags=['Bookings'])
 async def get_user_bookings(
     session:SessionDep, 
     current_user: Annotated[str, Depends(get_current_active_user)]
@@ -62,7 +62,7 @@ async def get_user_bookings(
     
     return all_bookings
 
-@booking_router.get('/user/bookings/{booking_id}', response_model=Booking_with_Seats)
+@booking_router.get('/user/bookings/{booking_id}', response_model=Booking_with_Seats, tags=['Bookings'])
 async def read_booking_by_id(
     booking_id: UUID, 
     session:SessionDep, 
@@ -77,7 +77,7 @@ async def read_booking_by_id(
     return booking
     
 
-@booking_router.get('/user/booking/history', response_model=list[BookingPublic])
+@booking_router.get('/user/booking/history', response_model=list[BookingPublic], tags=['Bookings'])
 async def read_user_booking_history(
     session: SessionDep, 
     current_user: Annotated[str, Depends(get_current_active_user)]
@@ -87,7 +87,7 @@ async def read_user_booking_history(
 
     return present_bookings + past_bookings
 
-@booking_router.delete('/booking/cancel_booking/{booking_id}')
+@booking_router.delete('/booking/cancel_booking/{booking_id}', tags=['Bookings'])
 async def delete_booking(
     booking_id:UUID, 
     session: SessionDep, 

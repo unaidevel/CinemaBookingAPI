@@ -9,7 +9,7 @@ from slugify import slugify
 
 movie_router = APIRouter()
 
-@movie_router.post('/movie', response_model=Movie)
+@movie_router.post('/movie', response_model=Movie, tags=['Movie'])
 async def create_movie(
     movieIn:MovieCreate, 
     session:SessionDep, 
@@ -29,7 +29,7 @@ async def create_movie(
     return new_movie
 
 
-@movie_router.get('/movie', response_model=list[Movie])
+@movie_router.get('/movie', response_model=list[Movie], tags=['Movie'])
 async def read_movie(
     session: SessionDep, 
     title: str | None = None, 
@@ -54,7 +54,7 @@ async def read_movie(
     return results
 
 
-@movie_router.get('/movie/{slug}', response_model=Movie)
+@movie_router.get('/movie/{slug}', response_model=Movie, tags=['Movie'])
 async def read_movie_by_id(slug: str, session: SessionDep):
     # movie = session.exec(select(Movie).where(Movie.title==movie_title))
     # movie = session.get(Movie, movie_title)
@@ -64,7 +64,7 @@ async def read_movie_by_id(slug: str, session: SessionDep):
     return movie
 
 
-@movie_router.patch('/movie/{slug}', response_model=Movie)
+@movie_router.patch('/movie/{slug}', response_model=Movie, tags=['Movie'])
 async def edit_movie(session: SessionDep, slug: str, movie_update: MovieUpdate, current_user: Annotated[str, Depends(admin_only)]):
     movie = session.exec(select(Movie).where(Movie.slug== slug)).first()
     # movie = session.get(Movie, movie_title)
@@ -83,7 +83,7 @@ async def edit_movie(session: SessionDep, slug: str, movie_update: MovieUpdate, 
 
 
 
-@movie_router.delete('/movie/{slug}')
+@movie_router.delete('/movie/{slug}', tags=['Movie'])
 async def delete_movie(slug: str, session: SessionDep, current_user: Annotated[str, Depends(admin_only)]):
     movie = session.exec(select(Movie).where(Movie.slug==slug)).first()
     if not movie:
