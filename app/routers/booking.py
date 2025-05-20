@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from app.models import Booking, UserInDb, Session, BookingPublic, BookingIn, Seat, BookingOut, Booking_with_Seats, release_expired_seats, lock_seats
+from app.models import Booking, UserInDb, Session, BookingPublic, BookingIn, Seat, Booking_with_Seats, release_expired_seats, lock_seats
 from typing import Annotated, Dict, List
 from app.auths.auth import SessionDep
 from app.auths.dependency import admin_only
@@ -8,7 +8,7 @@ from uuid import UUID
 from sqlmodel import select
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import selectinload
-from datetime import datetime
+from datetime import datetime, timezone
 # from app.routers import simple_send, EmailSchema
 from app.routers.mail_sending import simple_send, EmailSchema
 
@@ -92,8 +92,16 @@ async def read_user_booking_history(
     session: SessionDep, 
     current_user: Annotated[str, Depends(get_current_active_user)]
 ):
-    present_bookings = session.exec(select(Booking).where(Booking.booking_date >= datetime.now(datetime.UTC))).all()
-    past_bookings = session.exec(select(Booking).where(Booking.booking_date <= datetime.now(datetime.UTC))).all()
+    present_bookings = session.exec(select(Booking).where((Booking.booking_date >= datetime.now(timezone.utc)) 
+    & (Booking.user_id == current_user.id))).all()
+
+    past_bookings = session.exec(select(Booking).where((Booking.booking_date <= datetime.now(timezone.utc)) 
+    & (Booking.user_id == current_user.id))).all()
+
+
+    if not present_bookings and not past_bookings:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No bookings!')
+    
 
     return present_bookings + past_bookings
 
