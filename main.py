@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from sqlmodel import SQLModel
 from app.database import engine
 from app.routers import admin_router, booking_router, movie_router, session_router, user_router, rating_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -12,6 +13,20 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 create_db_and_tables()
+
+
+origins = [
+    "https://cinema.unaimunoz.dev",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware, 
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_method=['*'],
+    allow_headers=["*"],
+)
 
 
 # @app.on_event('startup')
