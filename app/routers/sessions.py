@@ -87,7 +87,7 @@ async def read_session_by_id(
 async def get_available_seats_per_season(
     session_id: UUID, 
     session: SessionDep, 
-    current_user:Annotated[str, Depends(get_current_active_user)]
+    # current_user:Annotated[str, Depends(get_current_active_user)]
 ):  
     
     release_expired_seats(session)
