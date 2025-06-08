@@ -8,7 +8,7 @@ from app.auths.auth import create_access_token, authenticate_user, get_password_
 from app.auths.auth import oauth2_scheme
 from app.auths.utils import TokenRefresh, Token, AccessToken, RefreshTokenRequest
 from app.auths.auth import ACCESS_TOKEN_EXPIRE_MINUTES
-from app.models import UserInDb, UserPassword, UserPublic
+from app.models import UserInDb, UserPassword, UserPublic, UserUpdate
 from fastapi.exceptions import HTTPException
 from app.config import SECRET_KEY
 from jose import JWTError, jwt
@@ -116,8 +116,25 @@ async def logout(
 
 
 
-@user_router.post('/user/me', response_model=UserPublic, tags=['User'])
+@user_router.get('/user/me', response_model=UserPublic, tags=['User'])
 async def read_user_me(
     current_user: Annotated[UserInDb, Depends(get_current_user)]
 ):
     return current_user
+
+
+@user_router.patch('/user/me', response_model=UserPublic)
+async def edit_user_data(
+    user_update: UserUpdate,
+    session: SessionDep,
+    current_user: Annotated[UserInDb, Depends(get_current_user)]
+):
+    user_in_db = session.get(UserInDb, current_user.id)
+    if not user_in_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found!')
+    
+    user_data = user_update.model_dump(exclude_unset=True)
+    user_in_db.sqlmodel_update(user_data)
+    session.add(user_in_db)
+    session.commit()
+    return user_in_db
