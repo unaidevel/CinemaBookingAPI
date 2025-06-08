@@ -123,7 +123,7 @@ async def read_user_me(
     return current_user
 
 
-@user_router.patch('/user/me', response_model=UserPublic)
+@user_router.patch('/user/me', response_model=UserPublic, tags=['User'])
 async def edit_user_data(
     user_update: UserUpdate,
     session: SessionDep,
