@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from typing import Dict, List
 from typing import Annotated
-from app.models import Session, SessionPublic, SessionUpdate, Seat, SessionCreate, Movie
+from app.models import Session, SessionPublic, SessionUpdate, Seat, SessionCreate, Movie, SeatPublic
 from app.auths.auth import SessionDep, get_current_user, get_current_active_user
 from app.auths.dependency import admin_only
 from sqlmodel import select
@@ -82,7 +82,7 @@ async def read_session_by_id(
     return film
 
 # response_model=Dict[str, List[Dict[str, bool]]]
-@session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[Seat]], tags=['Sessions'])
+@session_router.get('/session/{session_id}/seats', response_model=Dict[str, List[SeatPublic]], tags=['Sessions'])
 #The output, A dict with dicts of every row, bool for if its reserved or not
 async def get_available_seats_per_season(
     session_id: UUID, 
@@ -95,15 +95,25 @@ async def get_available_seats_per_season(
     seats_per_row = defaultdict(list)
     for seat in seats:
         row = seat.seat_number[0]
-        number = int(seat.seat_number[1:])
-        seats_per_row[row].append({
-            "number": number,
-            "reserved": seat.is_reserved
-        })
-
-    for row in seats_per_row:   #Ordering the seats per row
-        seats_per_row[row].sort(key=lambda s: s['number'])  #s is only variable name
+        seat_public =SeatPublic(
+            id=seat.id,
+            seat_number=seat.seat_number,
+            is_reserved=seat.is_reserved
+        )
+        seats_per_row[row].append(seat_public)
+        for row in seats_per_row:
+            seats_per_row[row].sort(key=lambda seat: int(seat.seat_number[1:]))
     return seats_per_row
+    #     number = int(seat.seat_number[1:])
+    #     seats_per_row[row].append({
+    #         "id": str(seat.id),
+    #         "number": number,
+    #         "reserved": seat.is_reserved
+    #     })
+
+    # for row in seats_per_row:   #Ordering the seats per row
+    #     seats_per_row[row].sort(key=lambda s: s['number'])  #s is only variable name
+    # return seats_per_row
 
 
 

@@ -37,6 +37,9 @@ async def create_reserve(
     # if any(seat.session_id != booking_in.session_id for seat in seats):
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Some seats do not belong to the session')
 
+    if not booking_in.seat_ids or any(seat_id is None for seat_id in booking_in.seat_ids):
+        raise HTTPException(status_code=400, detail='Invalid seat UUIDs provided')
+
     lock_seats(session, booking_in.seat_ids)
     film_session = session.exec(select(Session).where(Session.id==session_id)).first()
     if not film_session:
