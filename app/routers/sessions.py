@@ -101,8 +101,8 @@ async def get_available_seats_per_season(
             is_reserved=seat.is_reserved
         )
         seats_per_row[row].append(seat_public)
-        for row in seats_per_row:
-            seats_per_row[row].sort(key=lambda seat: int(seat.seat_number[1:]))
+    for row in seats_per_row:
+        seats_per_row[row].sort(key=lambda seat: int(seat.seat_number[1:]))
     return seats_per_row
     #     number = int(seat.seat_number[1:])
     #     seats_per_row[row].append({
