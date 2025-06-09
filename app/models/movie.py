@@ -71,6 +71,10 @@ class Movie(MovieBase, table=True):
             setattr(self, key, value)
 
 
+class MovieOut(SQLModel):
+    title: str
+
+
 
 # class Movie(SQLModel, table=True):
 #     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)

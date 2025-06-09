@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, Query, status
 from typing import Annotated
-from app.models import Movie, UserInDb, MovieCreate, MovieUpdate
+from app.models import Movie, UserInDb, MovieCreate, MovieUpdate, Session, MovieOut
 from app.auths.auth import SessionDep, get_current_user
 from app.auths.dependency import admin_only
 from sqlmodel import select
 from fastapi.exceptions import HTTPException
 from slugify import slugify
-
+from uuid import UUID
 movie_router = APIRouter()
 
 @movie_router.post('/movie', response_model=Movie, tags=['Movie'])
@@ -91,3 +91,18 @@ async def delete_movie(slug: str, session: SessionDep, current_user: Annotated[s
     session.delete(movie)
     session.commit()
     return {"message": "Movie deleted successfully!"}
+
+
+
+@movie_router.get('/movie/session_id/{session_id}', tags=['Movie'], response_model=MovieOut)
+async def read_movie_by_id(session_id:UUID, 
+                           session: SessionDep):
+    existing_movie = session.exec(select(Session).where(Session.id == session_id)).first()
+    if not existing_movie:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Session id is not correct')
+    find_movie = session.exec(select(Movie).where(Movie.id == existing_movie.movie_id)).first()
+    if not find_movie:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found!')
+    return find_movie
+
+
