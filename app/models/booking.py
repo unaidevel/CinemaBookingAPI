@@ -1,9 +1,9 @@
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, Column
 import uuid
 from datetime import date, datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING
-
+from typing import TYPE_CHECKING, List
+from sqlalchemy.dialects.postgresql import ARRAY, UUID as PG_UUID
 
 
 
@@ -66,6 +66,7 @@ class Booking(BookingBase, table=True):
     session_id: uuid.UUID = Field(foreign_key='session.id')
     user_id: uuid.UUID = Field(foreign_key='userindb.id')
     status: BookingStatus | None = Field(default=None)
+    seat_ids: List[uuid.UUID] = Field(sa_column=Column(ARRAY(PG_UUID)))
 
     is_canceled: bool = Field(default=False)
 

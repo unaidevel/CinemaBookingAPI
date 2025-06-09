@@ -45,7 +45,8 @@ async def create_reserve(
     if not film_session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Session not found')
     
-    booking = Booking(**booking_in.model_dump(exclude='seat_ids'))
+    booking = Booking(**booking_in.model_dump())
+    booking.seat_ids
     booking.status = 'completed'
     booking.movie_id = film_session.movie_id
     booking.user_id = current_user.id
