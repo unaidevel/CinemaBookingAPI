@@ -33,6 +33,9 @@ class MovieBase(SQLModel):
     duration: int
     genre: GenreEnum
     trailer_url: str | None = Field(default=None)
+    director: str | None = Field(default=None)
+    language: str | None = Field(default=None)
+    country: str | None = Field(default=None)
 
 class MovieCreate(MovieBase):
     pass
@@ -49,6 +52,9 @@ class MovieUpdate(SQLModel):
     duration: int | None = None
     genre: GenreEnum | None = None
     trailer_url: str | None = None
+    director: str | None = None
+    language: str | None = None
+    country: str | None = None
 
 
 class Movie(MovieBase, table=True):
