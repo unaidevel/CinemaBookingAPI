@@ -10,7 +10,7 @@ Esta es una API de gestión de reservas de cine diseñada como un proyecto de de
 
 #
 ### ⚙️ Puntos clave
-- 🔧 **Tech Stack:** FastAPI · SQLModel · PostgreSQL
+- 🔧 **Tech Stack:** Python · FastAPI · SQLModel · PostgreSQL
 - 🔐 Autenticación con JSON Web Tokens
 
 #
@@ -38,9 +38,10 @@ Esta es una API de gestión de reservas de cine diseñada como un proyecto de de
 📊 Seguimiento del historial de reservas y calificaciones de películas.
 
 🔗 Diseñada para una fácil integración con frontends.
+#
 
-🛠️ Tecnologías Utilizadas
-🚀 FastAPI: Para un backend de alto rendimiento.
+### 🛠️ Tecnologías Utilizadas
+🚀 FastAPI: Para un backend asíncrono de alto rendimiento.
 
 🐘 PostgreSQL: Como sistema de base de datos relacional.
 
@@ -59,6 +60,6 @@ Esta es una API de gestión de reservas de cine diseñada como un proyecto de de
 #
 
 ## 📧 Contacto y Más Proyectos
-¡Gracias por visitar este proyecto! Si te interesa ver más de mi trabajo o quieres ponerte en contacto, puedes visitar mi portfolio:
+¡Gracias por visitar este proyecto! Si te interesa ver más de mi trabajo o quieres ponerte en contacto conmigo, ¡Puedes visitar mi pagina web!:
 
 🌐 Portfolio: [https://www.unaimunoz.dev/](https://www.unaimunoz.dev/)
