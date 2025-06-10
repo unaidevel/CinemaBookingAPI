@@ -61,4 +61,4 @@ Esta es una API de gestión de reservas de cine diseñada como un proyecto de de
 ## 📧 Contacto y Más Proyectos
 ¡Gracias por visitar este proyecto! Si te interesa ver más de mi trabajo o quieres ponerte en contacto, puedes visitar mi portfolio:
 
-🌐 Portfolio: [unaimunoz.dev](unaimunoz.dev)
+🌐 Portfolio: [https://www.unaimunoz.dev/](https://www.unaimunoz.dev/)
