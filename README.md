@@ -1,10 +1,34 @@
-FastAPI Cinema Booking Service 🎬
-astAPI Cinema Booking service es una API RESTful limpia y eficiente que entrega datos de películas y horarios con la seguridad y escalabilidad en mente. Construida para proporcionar una base sólida de backend para aplicaciones relacionadas con el cine.
 
-📝 Descripción del Proyecto
-Esta es una API RESTful de gestión de reservas de cine diseñada como un proyecto de demostración para exhibir habilidades de backend. Proporciona autenticación de usuario segura con JWT, permitiendo a los usuarios explorar películas, gestionar sesiones, realizar reservas de asientos y seguir su historial de reservas. La API también admite el bloqueo de asientos para evitar duplicidades en las reservas e incluye un sistema de calificación para películas.
+# Servicio de Reserva de Cine con FastAPI 🎬
 
-✨ Características Clave
+## API Restful que entrega datos y horarios de películas asi como gestiona las reservas de tickets de cada sesión de cine. Construido para proporcionar un sistema solido y escalable para ser operativo de manera inmediata.
+
+
+### 📝 Descripción del Proyecto
+
+Esta es una API de gestión de reservas de cine diseñada como un proyecto de demostración para exhibir habilidades de backend. Proporciona autenticación de usuario segura con JWT, permitiendo a los usuarios explorar películas, gestionar sesiones, realizar reservas de asientos y seguir su historial de reservas. La API también admite el bloqueo de asientos para evitar duplicidades en las reservas e incluye un sistema de calificación para películas, así como muchas cosas más. El sistema está preparado para albergar procesos de pago.
+
+#
+### ⚙️ Puntos clave
+- 🔧 **Tech Stack:** FastAPI · SQLModel · PostgreSQL
+- 🔐 Autenticación con JSON Web Tokens
+
+#
+### ▶️ Endpoints principales
+- `/movie/`
+- `/sessions/`
+- `/user/`
+- `/bookings/`
+- `/ratings/`
+
+#
+
+### 📚 Documentación
+- Swagger UI: [https://cinema-api.unaimunoz.dev/docs](https://cinema-api.unaimunoz.dev/docs)
+- Redoc: [https://cinema-api.unaimunoz.dev/redoc](https://cinema-api.unaimunoz.dev/redoc)
+
+#
+### ✨ Características Clave
 ✅ Autenticación JWT con protección segura de rutas.
 
 🎥 Navegación de películas y gestión de sesiones.
@@ -29,3 +53,12 @@ Esta es una API RESTful de gestión de reservas de cine diseñada como un proyec
 🐳 Docker: Para desarrollo y despliegue en contenedores.
 
 💻 Git & GitHub: Para control de versiones.
+
+   
+
+#
+
+## 📧 Contacto y Más Proyectos
+¡Gracias por visitar este proyecto! Si te interesa ver más de mi trabajo o quieres ponerte en contacto, puedes visitar mi portfolio:
+
+🌐 Portfolio: [https://unaimunoz.dev](https://unaimunoz.dev)
