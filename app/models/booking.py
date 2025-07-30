@@ -49,6 +49,11 @@ class BookingPublic(BookingBase):
     id: uuid.UUID
     
 
+
+class BookingPublicAdminOnly(BookingBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+
 class BookingStatus(str, Enum):
     PENDING = 'pending'
     COMPLETED = 'completed'
